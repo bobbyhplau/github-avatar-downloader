@@ -19,15 +19,14 @@ function getRepoContributors(repoOwner, repoName, cb) {
     url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
     headers: {
       'User-Agent': 'request',
-      'Authorization': auth
+      'Authorization': "token " + auth
     }
   };
 
   request(options, function(err, res, body) {
     cb(err, body);
+    console.log("Download Complete");
   });
-
-  console.log("Download Complete!");
 }
 
 function downloadImageByURL(url, filePath) {
@@ -41,17 +40,11 @@ function downloadImageByURL(url, filePath) {
 
 getRepoContributors(owner, repo, function(err, result) {
 
-  json = JSON.parse(result);
+  var json = JSON.parse(result);
 
-  for (i of json) {
+  for (var i of json) {
     var fP = "./avatars/" + i.login + ".png";
+    console.log("Getting image for " , i.login);
     downloadImageByURL(i.avatar_url, fP);
   }
 });
-
-/*
-var tempUrl = "https://avatars1.githubusercontent.com/u/86454?v=4";
-var tempFilePath = "./avatars/test.png";
-
-downloadImageByURL(tempUrl, tempFilePath)
-*/
