@@ -1,6 +1,6 @@
 var request = require('request');
-var auth = require('./secrets.js').GITHUB_TOKEN;
-var fs = require('fs');
+// var fs = require('fs');
+require('dotenv').config();
 
 var owner = process.argv[2];
 var repo = process.argv[3];
@@ -8,7 +8,8 @@ var repo = process.argv[3];
 var missingErr = "You need to specify both the GitHub repo owner and the GitHub repo name.";
 
 if (!(owner && repo)) {
-    throw missingErr;}
+    throw missingErr;
+}
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
@@ -18,7 +19,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
         url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
         headers: {
             'User-Agent': 'request',
-            'Authorization': "token " + auth
+            'Authorization': "token " + process.env.GITHUB_TOKEN
         }
     };
 
