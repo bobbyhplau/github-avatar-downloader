@@ -2,6 +2,8 @@ var request = require('request');
 // var auth = require('./secrets.js').GITHUB_TOKEN;
 var fs = require('fs');
 var result = require('dotenv').config();
+var checkError = require('./check-error.js').checkError;
+var getRepos = require('./get-repos.js').getRepos;
 
 if (result.error) {
     let err = 'Missing .env file';
@@ -23,22 +25,6 @@ if (process.argv.length != 4) {
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
-function getRepoContributors(repoOwner, repoName, cb) {
-
-    var options = {
-        url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
-        headers: {
-            'User-Agent': 'request',
-            'Authorization': "token " + process.env.GITHUB_TOKEN
-        }
-    };
-
-    request(options, function(err, res, body) {
-        cb(err, body);
-        console.log("Download Complete");
-    });
-}
-
 function downloadImageByURL(url, filePath) {
 
     request.get(url)
@@ -48,7 +34,7 @@ function downloadImageByURL(url, filePath) {
         .pipe(fs.createWriteStream(filePath));
 }
 
-getRepoContributors(owner, repo, function(err, result) {
+getRepos(owner, repo, function(err, result) {
 
     var json = JSON.parse(result);
 
@@ -56,15 +42,7 @@ getRepoContributors(owner, repo, function(err, result) {
         fs.mkdirSync("./avatars/")
     }
 
-    if (json.message === 'Bad credentials') {
-        let err = "GITHUB_TOKEN in .env is not a valid token";
-        throw err;
-    }
-
-    if (json.message === 'Not Found') {
-        let err = 'The provided owner/repo does not exist';
-        throw err;
-    }
+    checkError(json.message);
 
     for (var i of json) {
         var fP = "./avatars/" + i.login + ".png";
