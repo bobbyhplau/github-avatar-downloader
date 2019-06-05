@@ -44,9 +44,17 @@ getRepos(owner, repo, function(err, result) {
 
     checkError(json.message);
 
+    let jsonlength = json.length;
+
     for (var i of json) {
         var fP = "./avatars/" + i.login + ".png";
         console.log("Getting image for ", i.login);
         downloadImageByURL(i.avatar_url, fP);
+        jsonlength--;
+    }
+
+    if (jsonlength === 0) {
+
+        console.log("Download Complete");
     }
 });
