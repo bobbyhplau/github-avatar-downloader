@@ -24,7 +24,6 @@ function getRepos(repoOwner, repoName, cb) {
 
     request(options, function(err, res, body) {
         cb(err, body);
-        console.log("Download Complete");
     });
 }
 

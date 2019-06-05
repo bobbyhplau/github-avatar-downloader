@@ -13,22 +13,40 @@ if (process.argv.length != 4) {
 }
 
 var countedObj = {};
+var reposToProcess = 0;
+
+const makeString = function(obj) {
+    let objArr = Object.keys(obj);
+
+    objArr.sort((a, b) => (countedObj[b].count - countedObj[a].count))
+
+    let toPrint = "";
+
+    for (let i = 0; i < 5; i++) {
+        toPrint += `[ ${countedObj[objArr[i]].count} stars ] ${objArr[i]}\n`;
+    }
+
+    toPrint = toPrint.substring(0, toPrint.length - 1);
+
+    return toPrint;
+}
 
 const getRepoNames = function(err, arr) {
 
     let json = JSON.parse(arr)
 
     for (let i of json) {
-        if (countedObj[i.id]) {
-            countedObj[i.id].count++;
+        if (countedObj[i.full_name]) {
+            countedObj[i.full_name].count++;
         } else {
-            countedObj[i.id] = {};
-            countedObj[i.id].name = i.name;
-            countedObj[i.id].owner = i.owner.login;
-            countedObj[i.id].count = 1;
+            countedObj[i.full_name] = {};
+            countedObj[i.full_name].count = 1;
         }
     }
-    console.log(countedObj);
+    reposToProcess--;
+    if (reposToProcess === 0) {
+        console.log(makeString(countedObj));
+    }
 }
 
 var getStarURL = function(url, cb) {
@@ -53,6 +71,7 @@ getRepos(owner, repo, function(err, result) {
     let json = JSON.parse(result);
 
     checkError(json.message);
+    reposToProcess = json.length;
 
     for (let i of json) {
         getStarURL(i.starred_url, getRepoNames);
